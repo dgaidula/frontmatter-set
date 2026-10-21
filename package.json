@@ -1,0 +1,41 @@
+{
+  "name": "frontmatter-set",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Set, insert or remove YAML frontmatter fields across Markdown files, changing only the lines it sets.",
+  "type": "module",
+  "bin": {
+    "frontmatter-set": "frontmatter-set.mjs"
+  },
+  "files": [
+    "frontmatter-set.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "frontmatter",
+    "yaml",
+    "markdown",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgaidula/frontmatter-set.git"
+  },
+  "homepage": "https://github.com/dgaidula/frontmatter-set#readme",
+  "bugs": {
+    "url": "https://github.com/dgaidula/frontmatter-set/issues"
+  },
+  "author": "Danniel T. Gaidula <dan@iceboxind.com>",
+  "license": "MIT",
+  "dependencies": {
+    "diff": "^9.0.0",
+    "yaml": "^2.9.1"
+  }
+}
