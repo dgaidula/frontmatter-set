@@ -138,7 +138,7 @@ test('a number given to --set is written as a string, and replaces a numeric val
   const f = put(dir, 'a.md', '---\nwords: 1200\n---\nbody\n');
   const r = run([f, '--set', 'words=1500', '--go', '--brief']);
   assert.equal(r.status, 1, r.stdout); // the type change is a finding, and still written
-  assert.match(r.stdout, /^⚠ warn .*\(words was the number 1200 and is written as a string;/m);
+  assert.match(r.stdout, /^warn .*\(words was the number 1200 and is written as a string;/m);
   assert.equal(get(f), '---\nwords: "1500"\n---\nbody\n');
 }));
 
@@ -296,8 +296,8 @@ test('contract: --brief is one line per file, --quiet the summary line, every te
   const b = put(dir, 'b.md', 'plain\n');
   const brief = run([a, b, '--set', 'status=closed', '--brief']).stdout.trim().split('\n');
   assert.equal(brief.length, 4); // two files, a summary line, a next line
-  assert.match(brief[0], /^✓ ok {5}would change status +/);
-  assert.match(brief[1], /^• skip.*\(the file does not start with a --- line\)$/);
+  assert.match(brief[0], /^ok would change status {2}/);
+  assert.match(brief[1], /^skip .*\(the file does not start with a --- line\)$/);
   assert.match(brief[2], /^summary: ok=1 warn=0 skip=1 refuse=0 fail=0/);
   assert.match(brief[3], /^next: ask/);
   const quiet = run([a, b, '--set', 'status=closed', '--quiet']).stdout.trim().split('\n');
@@ -333,7 +333,7 @@ test('contract: --json carries the exit code, never prompts, and a --go over ref
   const out = JSON.parse(r.stdout);
   assert.equal(out.exit, r.status);
   assert.equal(out.exit, 1);
-  assert.equal(out.contract, 'mjs-tool/2');
+  assert.equal(out.contract, 'mjs-tool/3');
   assert.equal(out.effect, 'applied');
   assert.deepEqual(out.summary, { ok: 1, warn: 0, skip: 0, refuse: 1, fail: 0 });
   assert.equal(out.items[0].changed, true);
@@ -606,7 +606,7 @@ test('4 (types): a list or mapping replaced by a scalar, or a value replaced by 
     '--set', 'empty=filled', '--set-yaml', 'none=3', '--brief']);
   assert.equal(r.status, 1, r.stdout);
   const line = r.stdout.split('\n')[0];
-  assert.match(line, /^⚠ warn /);
+  assert.match(line, /^warn /);
   for (const w of ['tags was a list and is written as a string', 'meta was a mapping and is written as a string',
     'nums was a list and is written as the number 5', 'title was the string "T" and is written as null']) assert.ok(line.includes(w), w);
   assert.ok(!/empty was|none was|the null null/.test(line), line); // filling an empty or null value is not a type change
@@ -728,7 +728,7 @@ test('8: a comment after the colon stays when the value is empty or on the next 
   const f = put(dir, 'a.md', '---\nempty:   # fill me\ntags: # one per line\n  - a\n  - b\n---\n');
   const r = run([f, '--set', 'empty=v', '--set', 'tags=x', '--go', '--brief']);
   assert.equal(r.status, 1, r.stdout); // a list replaced by a string is a warn
-  assert.match(r.stdout, /^⚠ warn .*\(tags was a list and is written as a string;/m);
+  assert.match(r.stdout, /^warn .*\(tags was a list and is written as a string;/m);
   assert.equal(get(f), '---\nempty: v   # fill me\ntags: x # one per line\n---\n');
 }));
 

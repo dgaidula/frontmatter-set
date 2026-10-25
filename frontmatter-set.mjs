@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // frontmatter-set - set, insert or remove YAML frontmatter fields across Markdown
 // files, changing only the lines it sets. Single-file Node CLI from
-// mjs-tool-skeleton (contract mjs-tool/2): usable by a person at a terminal and
+// mjs-tool-skeleton (contract mjs-tool/3): usable by a person at a terminal and
 // unattended by an agent, from ONE set of item objects.
 //
 // Usage:
@@ -56,13 +56,15 @@
 // Output modes (all rendered from the same item objects, so they can never
 // disagree):
 //   (default)   human    A block per file, with the diff.
-//   --brief              Exactly one line per file: <glyph> <verdict> <summary>
-//                        <name>, plus a parenthesised reason whenever the
-//                        verdict is not ok. Ends with a summary line.
+//   --brief              Exactly one line per file: <verdict> <summary>  <name>
+//                        (no padding, no glyph), plus a parenthesised reason
+//                        whenever the verdict is not ok, cut at 160 characters
+//                        (the rest is in --json). Never longer than the human
+//                        output of the same run. Ends with a summary line.
 //   --json              A stable object on stdout, nothing else:
 //                        { tool, version, contract, command, effect, exit,
 //                          state: { plan }, items: [...], summary: { ok, warn,
-//                          skip, refuse, fail }, next }   (contract "mjs-tool/2").
+//                          skip, refuse, fail }, next }   (contract "mjs-tool/3").
 //   --quiet             The summary line only.
 //   Every text mode then ends with one `next:` line, the tool's advice on the
 //   next step. After a clean dry run it is `ask`, with the command to run:
@@ -936,8 +938,8 @@ export {
   nextStep, rerunArgv, defaultNextAction, assertSafeNext, nextLine, report,
 };
 
-// ---- mjs-tool runtime v2 (do not edit; replace wholesale) ----
-// The shared machinery of contract mjs-tool/2, byte-identical in every tool
+// ---- mjs-tool runtime v3 (do not edit; replace wholesale) ----
+// The shared machinery of contract mjs-tool/3, byte-identical in every tool
 // built from mjs-tool-skeleton. It carries its own imports (namespaced, so they
 // never collide with the tool's); its other top-level names are unprefixed, so
 // a tool keeps no copies of them. The tool supplies, outside this block:
@@ -950,7 +952,7 @@ import * as runtimeFs from 'node:fs';
 import * as runtimePath from 'node:path';
 import * as runtimeUrl from 'node:url';
 
-const CONTRACT = 'mjs-tool/2';
+const CONTRACT = 'mjs-tool/3';
 
 // The realpath of this script, so a symlinked (npm-linked) invocation still
 // reports the right name/version and finds its own header for --help.
@@ -1238,19 +1240,36 @@ function nextLine(next, mode) {
 
 // -- rendering (one item shape -> every mode)
 
-const VERDICT_WIDTH = 6; // longest verdict word ("refuse")
-const SUMMARY_WIDTH = 38; // brief-mode column alignment (fits the longest shipped summary)
+const REASON_CUT = 160; // --brief cuts a reason after this many of its own characters (before escaping)
 
 function summaryLine(s, effect) {
   const base = `summary: ok=${s.ok} warn=${s.warn} skip=${s.skip} refuse=${s.refuse} fail=${s.fail}`;
   return effect === 'dry-run' ? `${base}  (dry run: pass --go to apply)` : base;
 }
 
-// One line per item. The parenthesised reason appears only for a non-ok verdict.
+// A reason for --brief: the whole of it, or its first REASON_CUT characters
+// and a count of the rest, which --json carries in full. Characters are the
+// reason's own code points, counted before escaping: a surrogate pair is never
+// split, the cut never falls inside an escape (a control character is cut
+// whole, then shown as its escape), and N is the code points --json holds past
+// the cut. The cut applies only where it shortens the reason (a reason a few
+// characters over the limit is shorter whole than with the note), so --brief
+// is never longer than the human output.
+function briefReason(reason) {
+  const shown = printable(reason);
+  const chars = Array.from(String(reason));
+  if (chars.length <= REASON_CUT) return shown;
+  const cut = `${printable(chars.slice(0, REASON_CUT).join(''))}… (+${chars.length - REASON_CUT} chars; --json for all)`;
+  return Buffer.byteLength(cut) < Buffer.byteLength(shown) ? cut : shown;
+}
+
+// One line per item: the verdict word, the summary, then the name, with no
+// padding and no glyph. The parenthesised reason appears only for a non-ok
+// verdict.
 function briefLine(item) {
   const showReason = item.verdict !== 'ok' && item.reason;
-  return `${glyph(item.verdict)} ${item.verdict.padEnd(VERDICT_WIDTH)} ${printable(item.summary).padEnd(SUMMARY_WIDTH)} ${printable(item.name)}`
-    + (showReason ? `  (${printable(item.reason)})` : '');
+  return `${item.verdict} ${printable(item.summary)}  ${printable(item.name)}`
+    + (showReason ? `  (${briefReason(item.reason)})` : '');
 }
 
 // The stable per-item JSON shape (top-level keys fixed; tool-specific facts go
@@ -1418,4 +1437,4 @@ if (__isMain) {
 } else if (HOOK_ERROR) {
   throw new Error(HOOK_ERROR);
 }
-// ---- end mjs-tool runtime v2 ----
+// ---- end mjs-tool runtime v3 ----

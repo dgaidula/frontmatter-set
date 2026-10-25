@@ -12,7 +12,7 @@ changing only the lines it sets. It exists so a batch stamp (`status`,
 
 ## Driving `frontmatter-set` from an agent session
 
-- **Reach for `--brief` first** — or `--json` when you need to parse the result — never the default human output. Brief is exactly one line per item, then a summary line and a `next:` line; JSON is a stable `{ tool, version, contract, command, effect, exit, items, summary, next }` object. The human output is for a person at a terminal and only wastes your context.
+- **Reach for `--brief` first** — or `--json` when you need to parse the result — never the default human output. Brief is exactly one line per item (`<verdict> <summary>  <name>`, with a long reason cut at 160 characters; it is never longer than the human output), then a summary line and a `next:` line; JSON is a stable `{ tool, version, contract, command, effect, exit, items, summary, next }` object. The human output is for a person at a terminal and only wastes your context.
 
 - **Any line whose verdict is not `ok` is a finding**, not noise. The verdicts are `ok`, `warn`, `skip`, `refuse`, `fail`; a non-`ok` line is never collapsed or dropped, and carries a parenthesised reason. A run is clean only when the summary reads `warn=0 refuse=0 fail=0` — `skip` is not a failure, but report what was skipped and why.
 
@@ -32,7 +32,7 @@ changing only the lines it sets. It exists so a batch stamp (`status`,
 
 - **`frontmatter-set --cheat`** prints a short card of the tool’s common invocations (a tldr page: a purpose line, then a handful of example commands). Read it when you need the usual command lines and not the full `--help`; it is not an output mode, and `--brief`, `--json` and `--quiet` are a usage error beside it.
 
-- **Quote back** the final summary line plus every non-`ok` line verbatim. That is the whole result — do not paraphrase a refusal into “done”.
+- **Quote back** the final summary line plus every non-`ok` line as `--brief` printed it. That is the whole result — do not paraphrase a refusal into “done”. A reason that ends `… (+N chars; --json for all)` was cut at 160 characters: the cut form is the quote, and `--json` has the full reason when you need it.
 
 ### The babysit loop: run, read `next`, obey or halt
 
@@ -68,7 +68,7 @@ Keep the `report()` / `verdict()` / `nextAction()` shape: every output mode
 renders from the one item list, so they cannot disagree.
 
 The fenced block at the bottom, between its two “do not edit” marker
-comments, is runtime v2: the shared machinery of contract `mjs-tool/2`. Never
+comments, is runtime v2: the shared machinery of contract `mjs-tool/3`. Never
 edit it; to move to a later contract, replace the whole block with the new
 one. `test/fence.test.mjs` pins it by hash.
 
