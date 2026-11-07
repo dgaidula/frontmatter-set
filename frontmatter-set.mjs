@@ -53,8 +53,7 @@
 //     (same inode, so extended attributes, flags and hard links stay) and read
 //     back; a write that does not read back is restored from the backup.
 //
-// Output modes (all rendered from the same item objects, so they can never
-// disagree):
+// Output modes (all rendered from the same item objects):
 //   (default)   human    A block per file, with the diff.
 //   --brief              Exactly one line per file: <verdict> <summary>  <name>
 //                        (no padding, no glyph), plus a parenthesised reason
