@@ -13,8 +13,8 @@ const TOOL_PATH = fileURLToPath(new URL('../frontmatter-set.mjs', import.meta.ur
 const START = '// ---- mjs-tool runtime v3 (do not edit; replace wholesale) ----';
 const END = '// ---- end mjs-tool runtime v3 ----';
 // sha256 of the fence, from its start marker through its end marker, as it
-// stands in mjs-tool-skeleton 0.4.0 (skeleton/tool.mjs).
-const FENCE_SHA256 = '1f1c5c19df209089efd5e19a5b6a98535be2dfb5b97f7013410567cec133fa4a';
+// stands in mjs-tool-skeleton 0.5.0 (skeleton/tool.mjs).
+const FENCE_SHA256 = '37931f3a1fee824688b683172c238a15af81cbc4575a97fa4574684a2492e81c';
 
 function fenceOf(file) {
   const src = readFileSync(file, 'utf8');

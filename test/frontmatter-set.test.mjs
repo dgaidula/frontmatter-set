@@ -10,6 +10,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { scalarText, planOne, buildSpec, writeOne, verdict } from '../frontmatter-set.mjs';
+delete process.env.FORCE_COLOR; delete process.env.NO_COLOR;
 
 const TOOL_PATH = fileURLToPath(new URL('../frontmatter-set.mjs', import.meta.url));
 const NODE = process.execPath;
@@ -831,7 +832,7 @@ test('7: every option parseArgs takes is listed under Flags in --help', () => {
   const options = [...block.matchAll(/^\s+'?([a-z][a-z-]*)'?: \{ type:/gm)].map((m) => m[1]);
   assert.ok(options.length >= 12, options.join(' '));
   const help = run(['--help']).stdout;
-  const flags = help.slice(help.indexOf('\nFlags:'), help.indexOf('\n\n', help.indexOf('\nFlags:')));
+  const flags = help.slice(help.indexOf('\nFlags:'), help.indexOf('\n\n\n', help.indexOf('\nFlags:')));
   // A word boundary, so `--set` is not satisfied by `--set-yaml`.
   for (const name of options) assert.ok(new RegExp(`--${name}(?![-\\w])`).test(flags), `--${name} in Flags`);
 });
